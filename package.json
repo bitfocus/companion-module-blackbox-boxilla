@@ -1,0 +1,26 @@
+{
+  "name": "boxilla-rest-api",
+  "version": "1.0.0",
+  "description": "Control of the boxilla software from Blackbox",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitfocus/companion-module-boxilla-rest-api.git"
+  },
+	"manufacturer": "Blackbox",
+	"product": "Boxilla",
+	"shortname": "boxilla",
+  "keywords": [
+    "blackbox",
+    "emerald"
+  ],
+  "author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitfocus/companion-module-boxilla-rest-api/issues"
+  },
+  "homepage": "https://github.com/bitfocus/companion-module-boxilla-rest-api#readme"
+}
