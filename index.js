@@ -1,7 +1,15 @@
-let instance_skel = require('../../instance_skel');
-let actions       = require('./actions');
-let log;
+const instance_skel                      = require('../../instance_skel');
+const actions                            = require('./actions');
+const { executeFeedback, initFeedbacks } = require('./feedbacks');
+// var sslRootCAs = require('ssl-root-cas/latest').inject();
+const rootCas = require('ssl-root-cas/latest').create()
+require('https').globalAgent.options.ca = rootCas;
+
 let debug;
+let log;
+
+// DEBUG ONLY!!!!!!
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; 
 
 class instance extends instance_skel {
 
@@ -13,8 +21,15 @@ class instance extends instance_skel {
 		});
 
 		this.header;
-		this.actions()
 		this.init()
+		this.devices = [];
+		this.users = [];
+		this.users_list = [];
+		this.hosts_list = [];
+		this.receivers_list = [];
+		this.connections = [];
+		this.connections_list = [];
+		this.active_connections = [];
 	}
 
 	actions(system) {
@@ -25,6 +40,10 @@ class instance extends instance_skel {
 		if (this.config.host !== undefined && this.config.username !== undefined && this.config.password !== undefined) {
 			this.header = this.createExtraHeaders();
 			this.sendCommand('bxa-api/version', 'GET');
+			this.sendCommand('bxa-api/users/kvm', 'GET');
+			this.sendCommand('bxa-api/devices/kvm', 'GET');
+			this.sendCommand('bxa-api/connections/kvm', 'GET');
+			this.sendCommand('bxa-api/connections/kvm/active', 'GET');
 		} else {
 			this.system.emit('log', 'Boxilla', 'error', 'Apply instance settings first')
 			this.status(this.STATUS_ERROR, 'SETTINGS');
@@ -33,7 +52,7 @@ class instance extends instance_skel {
 
 	createExtraHeaders() {
 		const { username, password } = this.config;
-		return { 'Accept': 'application/json', 'Authorization': 'Basic '+ Buffer.from(`${username}:${password}`).toString('base64'), 'Accept-version': 'v1'}
+		return { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Basic '+ Buffer.from(`${username}:${password}`).toString('base64'), 'Accept-version': 'v1'}
 	}
 
 	config_fields() {
@@ -72,23 +91,31 @@ class instance extends instance_skel {
 	action(action) {
 		let id = action.action;
 		let opt = action.options;
-		let uri;
+		let uri, params;
+		let type = 'GET';
 
 		switch (id) {
-			case 'getVersioning':
-				uri = 'bxa-api/version';
+			case 'active_connection':
+				uri = 'bxa-api/connections/kvm/active',
+				type = 'POST',
+				params = { 'username': opt.username, 'connection_name': opt.connection_name, 'receiver_name': opt.receiver_name}
+				break;
+			case 'new_connection':
+				uri = 'bxa-api/connections/kvm';
+				type = 'POST';
+				params = { 'name': opt.name, 'host': opt.host, 'group': opt.group, 'connection_type': opt.connection_type, 'view_only': opt.view_only, 'extended_desktop': opt.extended_desktop, 'usb_redirection': opt.usb_redirection, 'audio': opt.audio, 'persistent': opt.persistent, 'zone': opt.zone, 'cmode': opt.cmode};
 				break;
 		}
 
 		if (!uri) {
 			this.system.emit('log', 'Boxilla', 'error', 'no command');
 		} else {
-			this.sendGETCommand(uri);
+			this.sendCommand(uri,type,params);
 		}
 	}
 
 	sendCommand(uri, type, data) {
-		console.log(`command to send is: ${uri}, typeof: ${type}`);
+		console.log(`command to send is: ${uri}, typeof: ${type}, params: ${JSON.stringify(data)}`);
 		if(type == 'GET') {
 			this.system.emit('rest_get', 'https://' + this.config.host+'/' + uri, (err, result) => {
 				if (err !== null) {
@@ -125,15 +152,60 @@ class instance extends instance_skel {
 		}
 	}
 
-	processIncomingData(data) {
-		let resultObj = JSON.parse(data);
-		console.log('response:', resultObj.data);
-		this.setVariable('version', resultObj.Response.Data['Version'])
+	processIncomingData(result) {
+		if(result.data.code == '400' || result.data.code == '401' || result.data.code == '402' || result.data.code == '403') {
+			this.system.emit('log', 'Boxilla', 'error', `${result.data.code}: ${result.data.message}`);
+		} else {
+
+			let msg = result.data.message;
+			if(msg['software-version'] != undefined) {
+				this.setVariable('software_version', msg['software_version']);
+			}
+			if(msg['model_number'] != undefined) {
+				this.setVariable('model_number', msg['model_number']);
+			}
+			if(msg['active_connections'] != undefined) {
+				this.active_connections = [];
+				msg['active_connections'].forEach(element => {
+					this.active_connections[element['receiver_name']] = [];
+					this.active_connections[element['receiver_name']]['connection_name'] = element['connection_name'];
+					this.active_connections[element['receiver_name']]['active_user'] = element['active_user'];
+				});
+			} else if(msg['users'] != undefined) {
+				this.users = msg['users'];
+				this.users_list = [];
+				this.users.forEach(element => {
+					this.users_list.push({'id':element.username, 'label':element.username})
+				});
+				this.setVariable('users', this.users_list);
+			} else if(msg['connections'] != undefined) {
+				this.connections = msg['connections'];
+				this.connections_list= [];
+				this.connections.forEach(element => {
+					this.connections_list.push({'id': element.name, 'label':element.name});
+				});
+			} else if(msg['devices'] != undefined) {
+				this.devices = msg['devices'];
+				this.hosts_list = [];
+				this.receivers_list = [];
+				this.devices.forEach(element => {
+					if(element.model.slice(-1) == 'T') {
+						this.hosts_list.push({'id': element.ip, 'label':element.name});
+					} else {
+						this.receivers_list.push({'id': element.name, 'label':element.name});
+					}
+				});
+			}
+			this.actions();
+			this.init_feedbacks();
+		}
 	}
 
 	initVariables() {
 		let variables = [
-			{ name: 'version', label: 'Boxilla version:' }
+			{ name: 'software_version', label: 'Boxilla version:' },
+			{ name: 'model_number', label: 'Model number:' },
+			{ name: 'users', label: 'Users:' },
 		]
 		this.setVariableDefinitions(variables)
 	}
@@ -147,14 +219,32 @@ class instance extends instance_skel {
 		log = this.log;
 		this.initVariables();
 		this.initConnection();
+		this.init_feedbacks();
 	}
 
 	updateConfig(config) {
 		this.config = config
-		this.initConnection()
-		this.actions()
+		this.initConnection();
+		this.actions();
+		this.init_feedbacks();
 	}
 
+	/**
+	 * Set available feedback choices
+	 */
+	init_feedbacks() {
+		const feedbacks = initFeedbacks.bind(this)();
+		this.setFeedbackDefinitions(feedbacks);
+	}
+
+	/**
+	 * Execute feedback
+	 * @param  {} feedback
+	 * @param  {} bank
+	 */
+	feedback(feedback, bank) {
+		return executeFeedback.bind(this)(feedback, bank);
+	}
 }
 
 exports = module.exports = instance;

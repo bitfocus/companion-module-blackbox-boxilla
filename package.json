@@ -10,9 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/bitfocus/companion-module-boxilla-rest-api.git"
   },
-	"manufacturer": "Blackbox",
-	"product": "Boxilla",
-	"shortname": "boxilla",
+  "manufacturer": "Blackbox",
+  "product": "Boxilla",
+  "shortname": "boxilla",
   "keywords": [
     "blackbox",
     "emerald"
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/bitfocus/companion-module-boxilla-rest-api/issues"
   },
-  "homepage": "https://github.com/bitfocus/companion-module-boxilla-rest-api#readme"
+  "homepage": "https://github.com/bitfocus/companion-module-boxilla-rest-api#readme",
+  "dependencies": {
+    "ssl-root-cas": "^1.3.1"
+  }
 }

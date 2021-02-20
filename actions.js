@@ -2,25 +2,94 @@ exports.getActions = function () {
 
 	let actions = {}
 
-	actions['joyStickOperationPan'] = {
-		label: 'Pan camera',
-		options: [
-			{
-				label: 'Select direction',
-				type: 'dropdown',
-				id: 'direction',
-				default: 'Stop',
-				choices: [{ label: 'Left', id: 'Left' }, { label: 'Right', id: 'Right' }, { label: 'Stop', id: 'Stop' }]
-			},
-			{
-				label: 'Select speed (0-100)',
-				type: 'textinput',
-				id: 'speed',
-				default: '15',
-				regex: '/^([0-9]|[1-2][0-9]|100)$/'
-			}
-		]
+	actions['active_connection'] = {
+		label: 'Connect user to connection',
+		options: [{
+			label: 'Username',
+			type: 'dropdown',
+			id: 'username',
+			choices: this.users_list
+		},{
+			label: 'Connection name',
+			type: 'dropdown',
+			id: 'connection_name',
+			choices: this.connections_list
+		},{
+			label: 'Receiver name',
+			type: 'dropdown',
+			id: 'receiver_name',
+			choices: this.receivers_list
+		}]
 	}
+
+	// actions['new_connection'] = {
+	// 	label: 'Create new connection',
+	// 	options: [{
+	// 			label: 'Name',
+	// 			type: 'textinput',
+	// 			id: 'name',
+	// 			default: 'Companion123',
+	// 		},{
+	// 			label: 'Select host',
+	// 			type: 'dropdown',
+	// 			id: 'host',
+	// 			choices: this.hosts_list
+	// 		},{
+	// 			label: 'Group',
+	// 			type: 'dropdown',
+	// 			id: 'group',
+	// 			default: 'ConnectViaTx',
+	// 			choices: [{id: 'ConnectViaTx', label: 'ConnectViaTx'},{id: 'VM', label: 'VM'},{id: 'VMPool', label: 'VMPool'},{id: 'VMHorizon', label: 'VMHorizon'},{id: 'TXPair', label: 'TXPair'}]
+	// 		},{
+	// 			label: 'connection_type',
+	// 			type: 'dropdown',
+	// 			id: 'connection_type',
+	// 			default: 'Private',
+	// 			choices: [{id: 'Private', label: 'Private'},{id: 'Shared', label: 'Shared'}]
+	// 		},{
+	// 			label: 'view_only',
+	// 			type: 'dropdown',
+	// 			id: 'view_only',
+	// 			default: 'Yes',
+	// 			choices: [{id: 'Yes', label: 'Yes'},{id: 'No', label: 'No'}]
+	// 		},{
+	// 			label: 'extended_desktop',
+	// 			type: 'dropdown',
+	// 			id: 'extended_desktop',
+	// 			default: 'Yes',
+	// 			choices: [{id: 'Yes', label: 'Yes'},{id: 'No', label: 'No'}]
+	// 		},{
+	// 			label: 'usb_redirection',
+	// 			type: 'dropdown',
+	// 			id: 'usb_redirection',
+	// 			default: 'Yes',
+	// 			choices: [{id: 'Yes', label: 'Yes'},{id: 'No', label: 'No'}]
+	// 		},{
+	// 			label: 'audio',
+	// 			type: 'dropdown',
+	// 			id: 'audio',
+	// 			default: 'Yes',
+	// 			choices: [{id: 'Yes', label: 'Yes'},{id: 'No', label: 'No'}]
+	// 		},{
+	// 			label: 'persistent',
+	// 			type: 'dropdown',
+	// 			id: 'persistent',
+	// 			default: 'Yes',
+	// 			choices: [{id: 'Yes', label: 'Yes'},{id: 'No', label: 'No'}]
+	// 		},{
+	// 			label: 'zone',
+	// 			type: 'dropdown',
+	// 			id: 'zone',
+	// 			default: 'OSS',
+	// 			choices: [{id: 'OSS', label: 'OSS'}]
+	// 		},{
+	// 			label: 'compression',
+	// 			type: 'dropdown',
+	// 			id: 'cmode',
+	// 			default: 'Optimized',
+	// 			choices: [{id: 'Optimized', label: 'Optimized'},{id: 'LossLess', label: 'LossLess'}]
+	// 		}]
+	// }
 
 	return actions
 }
