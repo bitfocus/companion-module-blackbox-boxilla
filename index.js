@@ -156,9 +156,8 @@ class instance extends instance_skel {
 		if(result.data.code == '400' || result.data.code == '401' || result.data.code == '402' || result.data.code == '403') {
 			this.system.emit('log', 'Boxilla', 'error', `${result.data.code}: ${result.data.message}`);
 		} else {
-
 			let msg = result.data.message;
-			if(msg['software-version'] != undefined) {
+			if(msg['software_version'] != undefined) {
 				this.setVariable('software_version', msg['software_version']);
 			}
 			if(msg['model_number'] != undefined) {
@@ -171,13 +170,14 @@ class instance extends instance_skel {
 					this.active_connections[element['receiver_name']]['connection_name'] = element['connection_name'];
 					this.active_connections[element['receiver_name']]['active_user'] = element['active_user'];
 				});
+				console.log('this.active_connections', this.active_connections);
+				this.checkFeedbacks('actual_connection');
 			} else if(msg['users'] != undefined) {
 				this.users = msg['users'];
 				this.users_list = [];
 				this.users.forEach(element => {
 					this.users_list.push({'id':element.username, 'label':element.username})
 				});
-				this.setVariable('users', this.users_list);
 			} else if(msg['connections'] != undefined) {
 				this.connections = msg['connections'];
 				this.connections_list= [];
@@ -204,8 +204,7 @@ class instance extends instance_skel {
 	initVariables() {
 		let variables = [
 			{ name: 'software_version', label: 'Boxilla version:' },
-			{ name: 'model_number', label: 'Model number:' },
-			{ name: 'users', label: 'Users:' },
+			{ name: 'model_number', label: 'Model number:' }
 		]
 		this.setVariableDefinitions(variables)
 	}

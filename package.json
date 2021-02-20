@@ -1,5 +1,5 @@
 {
-  "name": "boxilla-rest-api",
+  "name": "blackbox-boxilla",
   "version": "1.0.0",
   "description": "Control of the boxilla software from Blackbox",
   "main": "index.js",
