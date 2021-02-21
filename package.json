@@ -1,6 +1,6 @@
 {
   "name": "blackbox-boxilla",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Control of the boxilla software from Blackbox",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitfocus/companion-module-boxilla-rest-api.git"
+    "url": "git+https://github.com/bitfocus/companion-module-blackbox-boxilla.git"
   },
   "manufacturer": "Blackbox",
   "product": "Boxilla",
@@ -20,9 +20,9 @@
   "author": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bitfocus/companion-module-boxilla-rest-api/issues"
+    "url": "https://github.com/bitfocus/companion-module-blackbox-boxilla/issues"
   },
-  "homepage": "https://github.com/bitfocus/companion-module-boxilla-rest-api#readme",
+  "homepage": "https://github.com/bitfocus/companion-module-blackbox-boxilla#readme",
   "dependencies": {
     "ssl-root-cas": "^1.3.1"
   }

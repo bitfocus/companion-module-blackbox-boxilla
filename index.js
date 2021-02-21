@@ -1,7 +1,6 @@
 const instance_skel                      = require('../../instance_skel');
 const actions                            = require('./actions');
 const { executeFeedback, initFeedbacks } = require('./feedbacks');
-// var sslRootCAs = require('ssl-root-cas/latest').inject();
 const rootCas = require('ssl-root-cas/latest').create()
 require('https').globalAgent.options.ca = rootCas;
 
@@ -30,6 +29,7 @@ class instance extends instance_skel {
 		this.connections = [];
 		this.connections_list = [];
 		this.active_connections = [];
+		this.config.apiPollInterval = this.config.apiPollInterval !== undefined ? this.config.apiPollInterval : 1000;
 	}
 
 	actions(system) {
@@ -43,7 +43,12 @@ class instance extends instance_skel {
 			this.sendCommand('bxa-api/users/kvm', 'GET');
 			this.sendCommand('bxa-api/devices/kvm', 'GET');
 			this.sendCommand('bxa-api/connections/kvm', 'GET');
-			this.sendCommand('bxa-api/connections/kvm/active', 'GET');
+			if (this.config.apiPollInterval != 0) {
+				this.sendCommand('bxa-api/connections/kvm/active', 'GET');
+				this.pollAPI = setInterval(() => {
+					this.sendCommand('bxa-api/connections/kvm/active', 'GET');
+				}, this.config.apiPollInterval < 100 ? 100 : this.config.apiPollInterval);
+			}
 		} else {
 			this.system.emit('log', 'Boxilla', 'error', 'Apply instance settings first')
 			this.status(this.STATUS_ERROR, 'SETTINGS');
@@ -76,15 +81,22 @@ class instance extends instance_skel {
 				id: 'username',
 				label: 'Username',
 				default: 'REST_BbAdminUser',
-				width: 5
+				width: 6
 			},
 			{
 				type: 'textinput',
 				id: 'password',
 				label: 'Password',
 				default: 'Boxill@2020',
-				width: 5
+				width: 6
+			},{
+				type: 'textinput',
+				id: 'apiPollInterval',
+				label: 'Polling interval',
+				width: '2',
+				default: '1000'
 			}
+
 		]
 	}
 
@@ -115,7 +127,7 @@ class instance extends instance_skel {
 	}
 
 	sendCommand(uri, type, data) {
-		console.log(`command to send is: ${uri}, typeof: ${type}, params: ${JSON.stringify(data)}`);
+		// this.log(`command to send is: ${uri}, typeof: ${type}, params: ${JSON.stringify(data)}`);
 		if(type == 'GET') {
 			this.system.emit('rest_get', 'https://' + this.config.host+'/' + uri, (err, result) => {
 				if (err !== null) {
@@ -170,7 +182,6 @@ class instance extends instance_skel {
 					this.active_connections[element['receiver_name']]['connection_name'] = element['connection_name'];
 					this.active_connections[element['receiver_name']]['active_user'] = element['active_user'];
 				});
-				console.log('this.active_connections', this.active_connections);
 				this.checkFeedbacks('actual_connection');
 			} else if(msg['users'] != undefined) {
 				this.users = msg['users'];
@@ -211,6 +222,9 @@ class instance extends instance_skel {
 
 	destroy() {
 		debug("destroy", this.id);
+		if (this.pollAPI) {
+			clearInterval(this.pollAPI);
+		}
 	}
 
 	init() {

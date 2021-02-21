@@ -46,8 +46,6 @@ exports.initFeedbacks = function() {
 
 exports.executeFeedback = function (feedback, bank) {
 	if(feedback.type === 'actual_connection') {
-		console.log('feedback conn',feedback.options.connection);
-		console.log('feedback user',feedback.options.user);
 		if(this.active_connections[feedback.options.receiver]['connection_name'] == feedback.options.connection && this.active_connections[feedback.options.receiver]['active_user'] == feedback.options.user) {
 			return {
 				color: feedback.options.fg,
