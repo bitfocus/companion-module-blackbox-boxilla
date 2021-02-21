@@ -45,6 +45,9 @@ class instance extends instance_skel {
 			this.sendCommand('bxa-api/connections/kvm', 'GET');
 			if (this.config.apiPollInterval != 0) {
 				this.sendCommand('bxa-api/connections/kvm/active', 'GET');
+				if (this.pollAPI) {
+					clearInterval(this.pollAPI);
+				}
 				this.pollAPI = setInterval(() => {
 					this.sendCommand('bxa-api/connections/kvm/active', 'GET');
 				}, this.config.apiPollInterval < 100 ? 100 : this.config.apiPollInterval);
