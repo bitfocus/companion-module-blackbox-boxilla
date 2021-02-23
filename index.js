@@ -1,8 +1,6 @@
 const instance_skel                      = require('../../instance_skel');
 const actions                            = require('./actions');
 const { executeFeedback, initFeedbacks } = require('./feedbacks');
-const rootCas = require('ssl-root-cas/latest').create()
-require('https').globalAgent.options.ca = rootCas;
 
 let debug;
 let log;
