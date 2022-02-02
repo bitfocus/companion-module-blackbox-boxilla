@@ -51,7 +51,7 @@ class instance extends instance_skel {
 				}, this.config.apiPollInterval < 100 ? 100 : this.config.apiPollInterval);
 			}
 		} else {
-			this.system.emit('log', 'Boxilla', 'error', 'Apply instance settings first')
+			this.log('error', 'Apply instance settings first')
 			this.status(this.STATUS_ERROR, 'SETTINGS');
 		}
 	}
@@ -121,7 +121,7 @@ class instance extends instance_skel {
 		}
 
 		if (!uri) {
-			this.system.emit('log', 'Boxilla', 'error', 'no command');
+			this.log('error', 'no command')
 		} else {
 			this.sendCommand(uri,type,params);
 		}
@@ -167,7 +167,7 @@ class instance extends instance_skel {
 
 	processIncomingData(result) {
 		if(result.data.code == '400' || result.data.code == '401' || result.data.code == '402' || result.data.code == '403') {
-			this.system.emit('log', 'Boxilla', 'error', `${result.data.code}: ${result.data.message}`);
+			this.log('Boxilla', 'error', `${result.data.code}: ${result.data.message}`)
 		} else {
 			let msg = result.data.message;
 			if(msg['software_version'] != undefined) {
