@@ -1,6 +1,6 @@
 {
   "name": "blackbox-boxilla",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Control of the boxilla software from Blackbox",
   "main": "index.js",
   "scripts": {
