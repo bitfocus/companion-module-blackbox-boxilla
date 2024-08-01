@@ -1,25 +1,36 @@
 exports.getActions = function () {
-
 	let actions = {}
 
 	actions['active_connection'] = {
-		label: 'Connect user to connection',
-		options: [{
-			label: 'Username',
-			type: 'dropdown',
-			id: 'username',
-			choices: this.users_list
-		},{
-			label: 'Connection name',
-			type: 'dropdown',
-			id: 'connection_name',
-			choices: this.connections_list
-		},{
-			label: 'Receiver name',
-			type: 'dropdown',
-			id: 'receiver_name',
-			choices: this.receivers_list
-		}]
+		name: 'Connect user to connection',
+		options: [
+			{
+				label: 'Username',
+				type: 'dropdown',
+				id: 'username',
+				choices: this.users_list,
+			},
+			{
+				label: 'Connection name',
+				type: 'dropdown',
+				id: 'connection_name',
+				choices: this.connections_list,
+			},
+			{
+				label: 'Receiver name',
+				type: 'dropdown',
+				id: 'receiver_name',
+				choices: this.receivers_list,
+			},
+		],
+		callback: (action) => {
+			let opt = action.options
+			this.sendCommand('bxa-api/connections/kvm/active', 'POST', {
+				username: opt.username,
+				connection_name: opt.connection_name,
+				receiver_name: opt.receiver_name,
+			})
+		},
 	}
 
 	// actions['new_connection'] = {
@@ -88,8 +99,24 @@ exports.getActions = function () {
 	// 			id: 'cmode',
 	// 			default: 'Optimized',
 	// 			choices: [{id: 'Optimized', label: 'Optimized'},{id: 'LossLess', label: 'LossLess'}]
-	// 		}]
-	// }
+	// 		}],
+	// 		callback: (action) => {
+	// 			let opt = action.options
+	// 			this.sendCommand('bxa-api/connections/kvm', 'POST', {
+	//  			name: opt.name,
+	//  			host: opt.host,
+	//  			group: opt.group,
+	//  			connection_type: opt.connection_type,
+	//  			view_only: opt.view_only,
+	//  			extended_desktop: opt.extended_desktop,
+	//  			usb_redirection: opt.usb_redirection,
+	//  			audio: opt.audio,
+	//  			persistent: opt.persistent,
+	//  			zone: opt.zone,
+	//  			cmode: opt.cmode,
+	//  		})
+	//  	}
+	//  }
 
 	return actions
 }
